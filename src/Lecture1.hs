@@ -122,7 +122,7 @@ and finds a sum of the numbers inside this string.
 The string contains only spaces and/or numbers.
 -}
 strSum :: String -> Int
-strSum str = let numbers = words str in addNums (read (head numbers)) (tail numbers) 
+strSum str = let numbers = words str in addNums 0 numbers
     where
         addNums :: Int -> [String] -> Int
         addNums result arrNums
@@ -143,7 +143,7 @@ and lower than 6 elements (4, 5, 6, 7, 8 and 9).
 🕯 HINT: Use recursion to implement this function.
 -}
 lowerAndGreater :: Int -> [Int] -> String
-lowerAndGreater n list =  show n ++ " is greater than " ++ show (checkHead (\x y -> x > y) 0 n list) ++ " elements and lower than " ++ show (checkHead (\x y -> x < y) 0 n list) ++ " elements"
+lowerAndGreater n list =  show n ++ "is greater than " ++ show (checkHead (\x y -> x > y) 0 n list) ++ " elements and lower than " ++ show (checkHead (\x y -> x < y) 0 n list) ++ " elements"
     where
         checkHead :: (Int -> Int -> Bool) -> Int -> Int -> [Int] -> Int
         checkHead satisfies result comp searchList
