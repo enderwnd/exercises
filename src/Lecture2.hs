@@ -41,7 +41,8 @@ module Lecture2
     ) where
 
 -- VVV If you need to import libraries, do it after this line ... VVV
-
+import Data.Maybe
+import Data.Either
 -- ^^^ and before this line. Otherwise the test suite might fail  ^^^
 
 {- | Implement a function that finds a product of all the numbers in
@@ -52,7 +53,10 @@ zero, you can stop calculating product and return 0 immediately.
 84
 -}
 lazyProduct :: [Int] -> Int
-lazyProduct = error "TODO"
+lazyProduct [] = 1
+lazyProduct (0 : _) = 0
+lazyProduct [x] = x
+lazyProduct (x : xs) = x * lazyProduct xs
 
 {- | Implement a function that duplicates every element in the list.
 
@@ -62,7 +66,9 @@ lazyProduct = error "TODO"
 "ccaabb"
 -}
 duplicate :: [a] -> [a]
-duplicate = error "TODO"
+duplicate [] = []
+duplicate [x] = [x, x]
+duplicate (x : xs) = x : x : duplicate xs
 
 {- | Implement function that takes index and a list and removes the
 element at the given position. Additionally, this function should also
@@ -74,7 +80,11 @@ return the removed element.
 >>> removeAt 10 [1 .. 5]
 (Nothing,[1,2,3,4,5])
 -}
-removeAt = error "TODO"
+removeAt :: Int -> [a] -> (Maybe a, [a])
+removeAt _ [] = (Nothing, [])
+removeAt x arr
+  | x < 0 = (Nothing, arr)
+  | otherwise = let dropped = drop x arr in (if not (null dropped) then Just (head dropped) else Nothing, take x arr ++ drop (x + 1) arr)
 
 {- | Write a function that takes a list of lists and returns only
 lists of even lengths.
@@ -85,7 +95,8 @@ lists of even lengths.
 ♫ NOTE: Use eta-reduction and function composition (the dot (.) operator)
   in this function.
 -}
-evenLists = error "TODO"
+evenLists :: [[a]] -> [[a]]
+evenLists arr = filter (even.length) arr
 
 {- | The @dropSpaces@ function takes a string containing a single word
 or number surrounded by spaces and removes all leading and trailing
@@ -101,7 +112,8 @@ spaces.
 
 🕯 HINT: look into Data.Char and Prelude modules for functions you may use.
 -}
-dropSpaces = error "TODO"
+dropSpaces :: String -> String
+dropSpaces x = let unspaced = words x in if null unspaced then "" else head unspaced
 
 {- |
 
@@ -164,7 +176,51 @@ data Knight = Knight
     , knightEndurance :: Int
     }
 
-dragonFight = error "TODO"
+data RewardChest = RewardChest
+    { chestGold     :: Int
+    , chestTreasure :: String
+    }
+
+data DragonColor
+    = Red
+    | Black
+    | Green
+
+data Dragon = Dragon
+    { dragonColor :: DragonColor
+    , dragonHealth :: Int
+    , dragonChest :: RewardChest
+    , dragonFirePower :: Int
+    }
+
+data Reward = Reward
+    { experience :: Int
+    , chest :: RewardChest
+    }
+
+getExperience :: DragonColor -> Int
+getExperience color = case color of
+    Red -> 100
+    Black -> 150
+    Green -> 250
+
+getReward :: Dragon -> Reward
+getReward dragon = case dragonColor dragon of
+  Green -> Reward (getExperience (dragonColor dragon)) (RewardChest (chestGold (dragonChest dragon)) "")
+  _ -> Reward (getExperience (dragonColor dragon)) (dragonChest dragon)
+
+data FightOutcome 
+  = WithReward Reward
+  | Dead Int
+  | RanAway Int
+
+dragonFight :: Knight -> Dragon -> Int -> FightOutcome
+dragonFight knight dragon strikes
+    | knightHealth knight <= 0 = Dead 0
+    | knightEndurance knight <= 0 = RanAway 1
+    | dragonHealth dragon <= 0 = WithReward (getReward dragon)
+    | strikes == 10 = dragonFight (Knight (knightHealth knight - dragonFirePower dragon) (knightAttack knight) (knightEndurance knight)) dragon 0
+    | otherwise = dragonFight (Knight (knightHealth knight) (knightAttack knight) (knightEndurance knight - 1)) (Dragon (dragonColor dragon) (dragonHealth dragon - knightAttack knight) (dragonChest dragon) (dragonFirePower dragon)) (strikes + 1)
 
 ----------------------------------------------------------------------------
 -- Extra Challenges
@@ -185,7 +241,9 @@ False
 True
 -}
 isIncreasing :: [Int] -> Bool
-isIncreasing = error "TODO"
+isIncreasing [] = True
+isIncreasing [x] = True
+isIncreasing (x : y : xs) = x < y && isIncreasing (y : xs)
 
 {- | Implement a function that takes two lists, sorted in the
 increasing order, and merges them into new list, also sorted in the
@@ -198,7 +256,11 @@ verify that.
 [1,2,3,4,7]
 -}
 merge :: [Int] -> [Int] -> [Int]
-merge = error "TODO"
+merge [] arr = arr
+merge arr [] = arr
+merge (x : xs) (y : ys)
+  | x < y = x : merge xs (y : ys)
+  | otherwise = y : merge (x : xs) ys
 
 {- | Implement the "Merge Sort" algorithm in Haskell. The @mergeSort@
 function takes a list of numbers and returns a new list containing the
@@ -215,7 +277,9 @@ The algorithm of merge sort is the following:
 [1,2,3]
 -}
 mergeSort :: [Int] -> [Int]
-mergeSort = error "TODO"
+mergeSort [] = []
+mergeSort [x] = [x]
+mergeSort arr = let half = (length arr) `div` 2 in merge (mergeSort (take half arr)) (mergeSort (drop half arr))
 
 
 {- | Haskell is famous for being a superb language for implementing
@@ -268,7 +332,17 @@ data EvalError
 It returns either a successful evaluation result or an error.
 -}
 eval :: Variables -> Expr -> Either EvalError Int
-eval = error "TODO"
+eval var (Lit e) = Right e
+eval var (Var v) = let val = lookup v var in if val == Nothing then Left (VariableNotFound (v)) else Right (fromJust val)
+eval var (Add x y) = 
+  let first = eval var x
+      second = eval var y
+  in  if isLeft first then 
+        first 
+      else if isLeft second then
+        second 
+      else 
+        Right ((fromRight 0 first) + (fromRight 0 second))
 
 {- | Compilers also perform optimizations! One of the most common
 optimizations is "Constant Folding". It performs arithmetic operations
@@ -292,4 +366,20 @@ Write a function that takes and expression and performs "Constant
 Folding" optimization on the given expression.
 -}
 constantFolding :: Expr -> Expr
-constantFolding = error "TODO"
+constantFolding (Lit e) = Lit e
+constantFolding (Var v) = Var v
+constantFolding (Add (Lit 0) y) = constantFolding y
+constantFolding (Add x (Lit 0)) = constantFolding x
+constantFolding (Add (Lit x) (Lit y)) = Lit (x + y)
+
+constantFolding (Add (Add (Lit x) y) (Lit z)) = constantFolding (Add (constantFolding y) (Lit (x + z)))
+constantFolding (Add (Add y (Lit x)) (Lit z)) = constantFolding (Add (constantFolding y) (Lit (x + z)))
+constantFolding (Add (Lit z) (Add y (Lit x))) = constantFolding (Add (Lit (x + z)) (constantFolding y))
+constantFolding (Add (Lit z) (Add (Lit x) y)) = constantFolding (Add (Lit (x + z)) (constantFolding y))
+
+constantFolding (Add (Add (Lit x) y) z) = constantFolding (Add (Lit x) (constantFolding (Add y z)))
+constantFolding (Add (Add y (Lit x)) z) = constantFolding (Add (Lit x) (constantFolding (Add y z)))
+constantFolding (Add z (Add (Lit x) y)) = constantFolding (Add (constantFolding (Add z y)) (Lit x)) 
+constantFolding (Add z (Add y (Lit x))) = constantFolding (Add (constantFolding (Add z y)) (Lit x))
+
+constantFolding (Add x y) = Add (constantFolding x) (constantFolding y)
