@@ -190,7 +190,12 @@ together only different elements.
 Product {getProduct = 6}
 
 -}
-appendDiff3 = error "TODO"
+appendDiff3 (Eq a, Semigroup a) => a -> a -> a-> a
+appendDiff3 x y z
+    | x == y = if x == z then x else x <> z
+    | x == z = if y == z then x else y <> z
+    | y == z = x <> y
+    | otherwise = x <> y <> z
 
 {-
 
