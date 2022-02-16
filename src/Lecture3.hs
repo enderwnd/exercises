@@ -35,7 +35,6 @@ module Lecture3
     ) where
 
 -- VVV If you need to import libraries, do it after this line ... VVV
-
 -- ^^^ and before this line. Otherwise the test suite might fail  ^^^
 
 -- $setup
@@ -52,7 +51,7 @@ data Weekday
     | Friday
     | Saturday
     | Sunday
-    deriving (Show, Eq)
+    deriving (Show, Eq, Enum, Bounded, Ord)
 
 {- | Write a function that will display only the first three letters
 of a weekday.
@@ -60,7 +59,8 @@ of a weekday.
 >>> toShortString Monday
 "Mon"
 -}
-toShortString = error "TODO"
+toShortString :: Weekday -> String
+toShortString x = take 3 (show x)
 
 {- | Write a function that returns next day of the week, following the
 given day.
@@ -82,7 +82,10 @@ Tuesday
   would work for **any** enumeration type in Haskell (e.g. 'Bool',
   'Ordering') and not just 'Weekday'?
 -}
-next = error "TODO"
+next :: (Ord a, Enum a, Bounded a) => a -> a
+next x
+    | (maxBound `asTypeOf` x) == x = (minBound `asTypeOf` x)
+    | otherwise = succ x
 
 {- | Implement a function that calculates number of days from the first
 weekday to the second.
@@ -92,7 +95,10 @@ weekday to the second.
 >>> daysTo Friday Wednesday
 5
 -}
-daysTo = error "TODO"
+daysTo :: (Ord a, Enum a, Bounded a) => a -> a -> Int
+daysTo x y
+    | x <= y = fromEnum y - fromEnum x
+    | otherwise = fromEnum (maxBound `asTypeOf` x) - fromEnum x + fromEnum y + 1
 
 {-
 
@@ -108,10 +114,10 @@ newtype Gold = Gold
 
 -- | Addition of gold coins.
 instance Semigroup Gold where
-
+    Gold x <> Gold y = Gold (x + y)
 
 instance Monoid Gold where
-
+    mempty = Gold 0
 
 {- | A reward for completing a difficult quest says how much gold
 you'll receive and whether you'll get a special reward.
@@ -125,10 +131,10 @@ data Reward = Reward
     } deriving (Show, Eq)
 
 instance Semigroup Reward where
-
+    Reward x s1 <> Reward y s2 = Reward (Gold (unGold x + unGold y)) (s1 || s2)
 
 instance Monoid Reward where
-
+    mempty = Reward (Gold 0) False
 
 {- | 'List1' is a list that contains at least one element.
 -}
@@ -137,7 +143,7 @@ data List1 a = List1 a [a]
 
 -- | This should be list append.
 instance Semigroup (List1 a) where
-
+    List1 x xs <> List1 y ys = List1 x (xs <> (y : ys))
 
 {- | Does 'List1' have the 'Monoid' instance? If no then why?
 
