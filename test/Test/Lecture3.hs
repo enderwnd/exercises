@@ -80,10 +80,11 @@ lecture3Spec = describe "Lecture 3" $ do
 {-
 
 !!! UNCOMMENT THE FOLLOWING SECTION FOR FOLDABLE/FUNCTOR TESTS !!!
-
+-}
     describe "Laws: Foldable" $ do
         it "List1" $ do
             lawsCheck (foldableLaws genList1With) `shouldReturn` True
+{-
         it "Treasure" $ do
             lawsCheck (foldableLaws genTreasureWith) `shouldReturn` True
 

@@ -147,9 +147,10 @@ instance Semigroup (List1 a) where
 
 {- | Does 'List1' have the 'Monoid' instance? If no then why?
 
-instance Monoid (List1 a) where
--}
 
+instance Monoid (List1 a) where
+    mempty = List1 mempty
+-}
 {- | When fighting a monster, you can either receive some treasure or
 don't.
 -}
@@ -227,7 +228,14 @@ types that can have such an instance.
 -- instance Foldable Weekday where
 -- instance Foldable Gold where
 -- instance Foldable Reward where
--- instance Foldable List1 where
+
+instance Foldable List1 where
+    foldr f z (List1 x []) = List1 (f x z) []
+    foldr f z (List1 x xs) = List1 (f x (foldr f z xs)) []
+
+    foldMap f (List1 x []) = List1 (f x) []
+    foldMap f (List1 x xs) =  List1 (f x (foldMap f xs)) []
+
 -- instance Foldable Treasure where
 
 {-
