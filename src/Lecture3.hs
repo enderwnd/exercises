@@ -169,7 +169,7 @@ instance Semigroup a => Semigroup (Treasure a) where
     NoTreasure <> NoTreasure = NoTreasure
     NoTreasure <> y = y
     x <> NoTreasure = x
-    x <> y = x <> y
+    SomeTreasure x <> SomeTreasure y = SomeTreasure (x <> y)
 
 instance Semigroup a => Monoid (Treasure a) where
     mempty = NoTreasure
