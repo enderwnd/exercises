@@ -165,11 +165,14 @@ monsters, you should get a combined treasure and not just the first
 🕯 HINT: You may need to add additional constraints to this instance
   declaration.
 -}
-instance Semigroup (Treasure a) where
+instance Semigroup a => Semigroup (Treasure a) where
+    NoTreasure <> NoTreasure = NoTreasure
+    NoTreasure <> y = y
+    x <> NoTreasure = x
+    x <> y = x <> y
 
-
-instance Monoid (Treasure a) where
-
+instance Semigroup a => Monoid (Treasure a) where
+    mempty = NoTreasure
 
 {- | Abstractions are less helpful if we can't write functions that
 use them!
