@@ -84,10 +84,10 @@ lecture3Spec = describe "Lecture 3" $ do
     describe "Laws: Foldable" $ do
         it "List1" $ do
             lawsCheck (foldableLaws genList1With) `shouldReturn` True
-{-
+
         it "Treasure" $ do
             lawsCheck (foldableLaws genTreasureWith) `shouldReturn` True
-
+{-
     describe "Laws: Functor" $ do
         it "List1" $ do
             lawsCheck (functorLaws genList1With) `shouldReturn` True

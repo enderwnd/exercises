@@ -235,7 +235,11 @@ instance Foldable List1 where
 
     foldMap f = foldr ((<>) . f) mempty
 
--- instance Foldable Treasure where
+instance Foldable Treasure where
+    foldr _ z NoTreasure = z
+    foldr f z (SomeTreasure x) = f x z
+
+    foldMap f = foldr ((<>) . f) mempty
 
 {-
 
