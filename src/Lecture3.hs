@@ -193,7 +193,7 @@ Product {getProduct = 6}
 appendDiff3 :: (Eq a, Semigroup a) => a -> a -> a-> a
 appendDiff3 x y z
     | x == y = if x == z then x else x <> z
-    | x == z = if y == z then x else y <> z
+    | x == z = x <> y
     | y == z = x <> y
     | otherwise = x <> y <> z
 
