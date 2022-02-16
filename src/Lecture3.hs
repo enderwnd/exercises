@@ -230,11 +230,10 @@ types that can have such an instance.
 -- instance Foldable Reward where
 
 instance Foldable List1 where
-    foldr f z (List1 x []) = List1 (f x z) []
-    foldr f z (List1 x xs) = List1 (f x (foldr f z xs)) []
+    foldr f z (List1 x []) = f x z
+    foldr f z (List1 x xs) = f x (foldr f z xs)
 
-    foldMap f (List1 x []) = List1 (f x) []
-    foldMap f (List1 x xs) =  List1 (f x (foldMap f xs)) []
+    foldMap f = foldr ((<>) . f) mempty
 
 -- instance Foldable Treasure where
 
