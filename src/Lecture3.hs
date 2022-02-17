@@ -256,6 +256,7 @@ types that can have such an instance.
 -- instance Functor Reward where
 
 instance Functor List1 where
+    fmap :: Functor f => (a -> b) -> f a -> f b
     fmap f (List1 x []) = List1 (f x) []
     fmap f (List1 x xs) = List1 (f x) (fmap f xs)
 
@@ -279,5 +280,9 @@ Just [8,9,10]
 >>> apply 5 [(+ 3), (* 4), div 17]
 [8,20,3]
 
+
+apply :: Functor f => a -> f (a -> b) -> f b
+apply _ mempty = mempty
+apply z (f x) = f (fmap x z)
+
 -}
-apply = error "TODO"
