@@ -60,7 +60,7 @@ of a weekday.
 "Mon"
 -}
 toShortString :: Weekday -> String
-toShortString x = take 3 (show x)
+toShortString = take 3 . show
 
 {- | Write a function that returns next day of the week, following the
 given day.
@@ -84,7 +84,7 @@ Tuesday
 -}
 next :: (Ord a, Enum a, Bounded a) => a -> a
 next x
-    | (maxBound `asTypeOf` x) == x = (minBound `asTypeOf` x)
+    | maxBound == x = minBound
     | otherwise = succ x
 
 {- | Implement a function that calculates number of days from the first
@@ -134,7 +134,7 @@ instance Semigroup Reward where
     Reward x s1 <> Reward y s2 = Reward (Gold (unGold x + unGold y)) (s1 || s2)
 
 instance Monoid Reward where
-    mempty = Reward (Gold 0) False
+    mempty = Reward mempty False
 
 {- | 'List1' is a list that contains at least one element.
 -}
@@ -167,7 +167,6 @@ monsters, you should get a combined treasure and not just the first
   declaration.
 -}
 instance Semigroup a => Semigroup (Treasure a) where
-    NoTreasure <> NoTreasure = NoTreasure
     NoTreasure <> y = y
     x <> NoTreasure = x
     SomeTreasure x <> SomeTreasure y = SomeTreasure (x <> y)
@@ -230,7 +229,6 @@ types that can have such an instance.
 -- instance Foldable Reward where
 
 instance Foldable List1 where
-    foldr f z (List1 x []) = f x z
     foldr f z (List1 x xs) = f x (foldr f z xs)
 
     foldMap f = foldr ((<>) . f) mempty
@@ -257,7 +255,6 @@ types that can have such an instance.
 
 instance Functor List1 where
     fmap :: (a -> b) -> List1 a -> List1 b
-    fmap f (List1 x []) = List1 (f x) []
     fmap f (List1 x xs) = List1 (f x) (fmap f xs)
 
 instance Functor Treasure where
@@ -281,10 +278,8 @@ Just [8,9,10]
 [8,20,3]
 -}
 
-apply = error "TODO"
-{- 
-apply :: Functor f => a -> f (a -> b) -> f b
-apply _ mempty = mempty
-apply z (f x) = f (fmap x z)
+singleApply :: a -> (a -> b) -> b
+singleApply oper x = x oper
 
--}
+apply :: Functor f => a -> f (a -> b) -> f b
+apply x = fmap (singleApply x)
